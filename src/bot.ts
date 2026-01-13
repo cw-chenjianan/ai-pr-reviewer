@@ -33,7 +33,7 @@ Current date: ${currentDate}
 IMPORTANT: Entire response must be in the language with ISO code: ${options.language}
 `
 
-      this.api = new ChatGPTAPI({
+      const apiConfig: any = {
         apiBaseUrl: options.apiBaseUrl,
         systemMessage,
         apiKey: process.env.OPENAI_API_KEY,
@@ -45,7 +45,25 @@ IMPORTANT: Entire response must be in the language with ISO code: ${options.lang
           temperature: options.openaiModelTemperature,
           model: openaiOptions.model
         }
-      })
+      }
+
+      // If custom headers are provided, create a custom fetch function
+      if (Object.keys(options.customHeaders).length > 0) {
+        info('Using custom API headers for OpenAI requests')
+        const customHeaders = options.customHeaders
+        apiConfig.fetch = async (url: string, init?: RequestInit) => {
+          const headers = {
+            ...init?.headers,
+            ...customHeaders
+          }
+          return fetch(url, {
+            ...init,
+            headers
+          })
+        }
+      }
+
+      this.api = new ChatGPTAPI(apiConfig)
     } else {
       const err =
         "Unable to initialize the OpenAI API, both 'OPENAI_API_KEY' environment variable are not available"

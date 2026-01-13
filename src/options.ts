@@ -22,6 +22,7 @@ export class Options {
   heavyTokenLimits: TokenLimits
   apiBaseUrl: string
   language: string
+  customHeaders: Record<string, string>
 
   constructor(
     debug: boolean,
@@ -40,7 +41,8 @@ export class Options {
     openaiConcurrencyLimit = '6',
     githubConcurrencyLimit = '6',
     apiBaseUrl = 'https://api.openai.com/v1',
-    language = 'en-US'
+    language = 'en-US',
+    customHeaders = '{}'
   ) {
     this.debug = debug
     this.disableReview = disableReview
@@ -61,6 +63,13 @@ export class Options {
     this.heavyTokenLimits = new TokenLimits(openaiHeavyModel)
     this.apiBaseUrl = apiBaseUrl
     this.language = language
+    // Parse custom API headers from JSON string
+    try {
+      this.customHeaders = customHeaders ? JSON.parse(customHeaders) : {}
+    } catch (e) {
+      info(`Failed to parse custom_headers, using empty object: ${e}`)
+      this.customHeaders = {}
+    }
   }
 
   // print all options using core.info
@@ -84,6 +93,13 @@ export class Options {
     info(`review_token_limits: ${this.heavyTokenLimits.string()}`)
     info(`api_base_url: ${this.apiBaseUrl}`)
     info(`language: ${this.language}`)
+    info(
+      `custom_headers: ${JSON.stringify(
+        Object.keys(this.customHeaders).length > 0
+          ? Object.keys(this.customHeaders)
+          : 'none'
+      )}`
+    )
   }
 
   checkPath(path: string): boolean {

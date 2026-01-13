@@ -234,6 +234,13 @@ inputs:
     required: false
     description: ISO code for the response language
     default: en-US
+  custom_headers:
+    required: false
+    description: |
+      自定义 OpenAI API 请求头（JSON 格式）
+      例如：'{"api-key": "your-key", "Custom-Header": "value"}'
+      如果不提供，将使用标准的 Authorization: Bearer {OPENAI_API_KEY} 请求头
+    default: ''
   bot_icon:
     required: false
     description: 'The icon for the bot'
