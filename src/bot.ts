@@ -46,16 +46,25 @@ IMPORTANT: Entire response must be in the language with ISO code: ${options.lang
           model: openaiOptions.model
         }
       }
-
+      info('Using custom API headers for OpenAI request1')
       // If custom headers are provided, create a custom fetch function
       if (Object.keys(options.customHeaders).length > 0) {
         info('Using custom API headers for OpenAI requests')
         const customHeaders = options.customHeaders
         apiConfig.fetch = async (url: string, init?: RequestInit) => {
+          // 获取原始请求头
+          const originalHeaders = init?.headers as Record<string, string> || {}
+          
+          // 删除默认的 Authorization 头（chatgpt 库会自动添加）
+          // 因为我们要使用自定义的认证方式（如 api-key）
+          delete originalHeaders.Authorization
+          
+          // 合并自定义请求头
           const headers = {
-            ...init?.headers,
+            ...originalHeaders,
             ...customHeaders
           }
+          info(`Custom headers keys: ${JSON.stringify(Object.keys(customHeaders))}`)
           return fetch(url, {
             ...init,
             headers

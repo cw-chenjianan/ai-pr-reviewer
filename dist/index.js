@@ -3862,15 +3862,23 @@ IMPORTANT: Entire response must be in the language with ISO code: ${options.lang
                     model: openaiOptions.model
                 }
             };
+            (0,core.info)('Using custom API headers for OpenAI request1');
             // If custom headers are provided, create a custom fetch function
             if (Object.keys(options.customHeaders).length > 0) {
                 (0,core.info)('Using custom API headers for OpenAI requests');
                 const customHeaders = options.customHeaders;
                 apiConfig.fetch = async (url, init) => {
+                    // 获取原始请求头
+                    const originalHeaders = init?.headers || {};
+                    // 删除默认的 Authorization 头（chatgpt 库会自动添加）
+                    // 因为我们要使用自定义的认证方式（如 api-key）
+                    delete originalHeaders.Authorization;
+                    // 合并自定义请求头
                     const headers = {
-                        ...init?.headers,
+                        ...originalHeaders,
                         ...customHeaders
                     };
+                    (0,core.info)(`Custom headers keys: ${JSON.stringify(Object.keys(customHeaders))}`);
                     return fetch(url, {
                         ...init,
                         headers
